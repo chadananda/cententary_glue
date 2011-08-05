@@ -1,0 +1,9 @@
+; $Id$
+
+name = "Centenary Glue"
+core = "6.x"
+description = Glue module for centenary site
+package = "* Centenary Tools"
+version = 6.x-dev
+
+

@@ -1,0 +1,59 @@
+<?php
+
+// $Id$
+
+function cg_menu() {
+  $items['admin/centenary'] = array(
+    'title' => 'Centenary site',
+    'description' => 'Custom settings for centenary site',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cg_admin'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'cg.admin.inc',
+  );
+  //return $items;
+}
+
+function cg_nodeapi(&$node, $op, $teaser, $page) {
+  if ($op == 'view' ) {
+    $node->content[body]['#value'] = '<div class="node-body">' . $node->content[body]['#value'] . '</div>';
+    //if ($page && user_access('administer site configuration')) dsm($node);
+  }
+}
+
+function cg_form_node_type_form_alter(&$form, $form_state) {
+  // Built in content types do not allow changes to type machine name.
+    if (isset($form['identity']['type']['#default_value'])) {
+      $type = $form['identity']['type']['#default_value'];
+    }
+    else {
+      $type = $form['identity']['type']['#value'];
+    }
+  if (module_exists('token')) {
+    $form['#submit'][] = 'cg_node_type_form_submit_teaserheaders';
+    $form['teaserheader'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Teaser Headers'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#access' => user_access('administer site configuration'),
+    );
+    $form['teaserheader']['cg_teaserheader'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Teaser header token'),
+      '#default_value' => variable_get("cg_teaserheader_$type", variable_get('cg_teaserheaders', '[type-name]: [title]')),
+      '#description' => t('You may optionally enter a token-based header to appear on teasers for this content type.  You may use the tokens specified below.'),
+    );
+    $form['teaserheader']['token_help'] = array(
+      '#title' => t('Replacement patterns'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    $form['teaserheader']['token_help']['help'] = array(
+      '#value' => theme('token_help', 'node'),
+    );
+  }
+}
+
+
