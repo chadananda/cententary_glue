@@ -52,29 +52,7 @@ function cg_filter_tips($delta, $format, $long = FALSE) {
 function cg_nodeapi(&$node, $op, $teaser, $page) {
   if ($op == 'view' ) {
     $node->content['body']['#value'] = '<div class="node-body">' . $node->content['body']['#value'] . '</div>';
-    global $user;
-    if ($page && $user->name == 'david') {
-      if (is_array($node->content['field_assets']['field']['items']) && count($node->content['field_assets']['field']['items'])) {
-        if ($count = substr_count($node->content['body']['#value'], '<asset')) {
-          $node->content['field_assets']['#post_render'][] = 'cg_addclass_post_render';
-          $node->content['field_assets']['#weight'] = 1;
-          for ($i=0; $i<$count; $i++) {
-            if (count($node->content['field_assets']['field']['items'])) {
-              $ref = array_shift($node->content['field_assets']['field']['items']);
-              $node->content['body']['#value'] = preg_replace('#<asset:*(left|right)* />#', "<div class='node-teaser centenary-node asset $1'>%asset$i</div>", $node->content['body']['#value'], 1);
-              $ref_html[] = drupal_render($ref);
-              $search[] = "%asset$i";
-            }
-          }
-          $node->content['body']['#value'] = str_replace($search, $ref_html, $node->content['body']['#value']);
-        }
-      }
-      $node->content['body']['#value'] = preg_replace('#<asset:*(left|right)* />#', '', $node->content['body']['#value']);
-    }
   }
-}
-function cg_addclass_post_render($content, $element) {
-  return '<div class="cg-field">' . $content . '</div>';
 }
 
 function cg_form_node_type_form_alter(&$form, $form_state) {
