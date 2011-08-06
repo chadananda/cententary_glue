@@ -46,7 +46,7 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
   }
 }
 function cg_filter_tips($delta, $format, $long = FALSE) {
-  return t('Inserting the a tag like [teaser:123] will print a node teaser in that location.');
+  return t('Inserting the a tag like [teaser:123] will print a node teaser in that location.  If you include a float direction, i.e. [teaser:123:right], the teaser will be floated in the direction specified.');
 }
 
 function cg_nodeapi(&$node, $op, $teaser, $page) {
