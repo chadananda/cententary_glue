@@ -3,15 +3,14 @@
 // $Id$
 
 function cg_menu() {
-  $items['admin/centenary'] = array(
-    'title' => 'Centenary site',
+  $items['admin/settings/centenary/migrate'] = array(
+    'title' => 'Migrate - Aug 9',
     'description' => 'Custom settings for centenary site',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('cg_admin'),
+    'page arguments' => array('cg_migrate_nodes'),
     'access arguments' => array('administer site configuration'),
-    'file' => 'cg.admin.inc',
   );
-  //return $items;
+  return $items;
 }
 
 function cg_filter($op, $delta = 0, $format = -1, $text = '') {
@@ -90,4 +89,35 @@ function cg_form_node_type_form_alter(&$form, $form_state) {
   }
 }
 
+function cg_form_city_node_form_alter(&$form, $form_state) {
+  if ($_GLOBALS['user']['name'] == 'david') drupal_add_js(drupal_get_path('module', 'cg') . '/map_coord_pick.js');
+}
+
+function cg_migrate_nodes() {
+  $form['text'] = array(
+    '#value' => 'This will perform the following tasks:
+                  <ul><li>switch date fields over to a standard date field (press clips, talks)</li>
+                  <li>switch location fields over to a node location (press clips, talks)</li></ul>'
+  );
+  $form['submit'] = array('#type' => 'submit', '#value' => 'execute');
+  return $form;
+}
+
+function cg_migrate_nodes_submit(&$form, $form_state) {
+  foreach (array('talk', 'clip') as $ntype) {
+    $node = node_load(array('type' => $ntype));
+    dsm($node);
+    if ($ntype == 'talk') {
+      $node->locations[0] = array_merge($node->locations[0], array_filter($node->field_talkloc[0]));
+      $node->field_historical_date[0] = array('value' => $node->field_talkdate[0]['value']);
+    }
+    elseif ($ntype == 'clip') {
+      $node->locations[0] = array_merge($node->locations[0], array_filter($node->field_publocation[0]));
+      $node->field_historical_date[0] = array('value' => $node->field_pubdate[0]['value']);
+    }
+    node_save($node);
+    $node = node_load($node->nid);
+    dsm($node);
+  }
+}
 
