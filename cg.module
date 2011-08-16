@@ -85,15 +85,33 @@ function cg_form_node_type_form_alter(&$form, $form_state) {
   }
 }
 
-function cg_form_city_node_form_alter(&$form, $form_state) {
-  if ($_GLOBALS['user']['name'] == 'david') drupal_add_js(drupal_get_path('module', 'cg') . '/map_coord_pick.js');
-}
-
-/*
 function cg_form_alter(array &$form, array &$form_state, $form_id) {
   if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
-    $node = node_load(array('nid' => $form['#node']->nid ));
-    dsm($node);
+    if ($form['type']['#value'] == 'city') {
+      $x = round($form['group_map_position']['field_pos_x'][0]['#default_value']['value'] / 2); 
+      $y = round($form['group_map_position']['field_pos_y'][0]['#default_value']['value'] / 2);
+      $show = $x || $y ? '' : ' display:none;';
+      $flagtype = $form['group_map_position']['field_map_flag_type']['#default_value'][0]['value'];
+      $flagtype = $flagtype ? $flagtype : 'map-pin-red';
+      $flag = "
+        <div class='travelmap-city' style='left:{$x}px; top:{$y}px;$show '>
+        <div class='travelmap-city-marker'>
+          <img src='/sites/all/themes/centenary/images/$flagtype.png' height=24 width=24 />
+        </div></div>
+      ";
+      $form['group_map_position']['mappos'] = array(
+        '#value' => '<style>.travelmap-city{position:absolute;height:1px;width:1px;}
+                     .travelmap-city-marker{position:absolute;left:-5px;bottom:-8px;}
+                     #travelmap-picker{position:relative;float:right;width:350px;}
+                     </style>
+                     <div id="travelmap-picker">
+                     <img width="350" height="212" src="/sites/all/themes/centenary/images/map-large-4.jpg" />' . $flag . '
+                     <div class="description">Click on the image to place the flag</div>
+                     </div>',
+        '#weight' => -100,
+      );
+      drupal_add_js(drupal_get_path('module', 'cg') . '/travelmap_picker.js');
+    }
   }
 } /* */
 
