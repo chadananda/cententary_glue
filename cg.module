@@ -19,12 +19,17 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
       if (preg_match_all("#\[teaser:([\d]+):*(left|right)*\]#", $text, $matches, PREG_SET_ORDER)) {
         foreach ($matches as $match) {
           if ($node = node_load($match[1])) {
-            if ($match[2]) $class = $match[2];
-            $insert = '<div class="node node-teaser ' . check_plain($node->type) . ' ' . $class . '">' . node_view($node, TRUE, FALSE, FALSE) . '</div>';
-            $text = str_replace($match[0], $insert, $text);
+            if ($node->status) {
+              if ($match[2]) $class = $match[2];
+              $insert = '<div class="node node-teaser ' . check_plain($node->type) . ' ' . $class . '">' . node_view($node, TRUE, FALSE, FALSE) . '</div>';
+              $text = str_replace($match[0], $insert, $text);
+            }
+            else {
+              $text = str_replace($match[0], '', $text);
+            }
           }
           else {
-            $text = str_replace($match[0], '', '$text');
+            $text = str_replace($match[0], '', $text);
           }
         }
       }
@@ -58,28 +63,33 @@ function cg_form_node_type_form_alter(&$form, $form_state) {
     else {
       $type = $form['identity']['type']['#value'];
     }
-  if (module_exists('token')) {
-    $form['#submit'][] = 'cg_node_type_form_submit_teaserheaders';
-    $form['teaserheader'] = array(
+    $form['cg_options'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Teaser Headers'),
+      '#title' => t('Centenary Options'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#access' => user_access('administer site configuration'),
     );
-    $form['teaserheader']['cg_teaserheader'] = array(
+    $form['cg_options']['cg_superhead'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Node super head'),
+      '#default_value' => variable_get("cg_superhead_$type", ''),
+      '#description' => t("You may optionally enter a super head for all nodes of type $type")
+    );
+  if (module_exists('token')) {
+    $form['cg_options']['cg_teaserheader'] = array(
       '#type' => 'textfield',
       '#title' => t('Teaser header token'),
       '#default_value' => variable_get("cg_teaserheader_$type", variable_get('cg_teaserheaders', '[type-name]: [title]')),
       '#description' => t('You may optionally enter a token-based header to appear on teasers for this content type.  You may use the tokens specified below.'),
     );
-    $form['teaserheader']['token_help'] = array(
+    $form['cg_options']['token_help'] = array(
       '#title' => t('Replacement patterns'),
       '#type' => 'fieldset',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
-    $form['teaserheader']['token_help']['help'] = array(
+    $form['cg_options']['token_help']['help'] = array(
       '#value' => theme('token_help', 'node'),
     );
   }
