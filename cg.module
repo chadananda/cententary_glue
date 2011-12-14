@@ -46,13 +46,40 @@ function cg_nodeapi(&$node, $op, $teaser, $page) {
   if ($op == 'view' ) {
     $node->content['body']['#value'] = '<div class="node-body">' . $node->content['body']['#value'] . '</div>';
   }
-  elseif ($op == 'presave' && is_array($node->field_clip_img[0])) {
-    $node->field_main_image[0] = array(
-      'fid' => $node->field_clip_img[0]['fid'],
-      'list' => 1,
-      'data' => $node->field_clip_img[0]['data'],
-    );
+  elseif ($op == 'presave') {
+    if (is_array($node->field_clip_img[0])) {
+      $node->field_main_image[0] = array(
+        'fid' => $node->field_clip_img[0]['fid'],
+        'list' => 1,
+        'data' => $node->field_clip_img[0]['data'],
+      );
+    }
+    if (!empty($node->field_editingassigned[0]['uid'])) {
+      if ($oldnode = node_load($node->nid)) {
+        if ($oldnode->field_editingassigned[0]['uid'] == $node->field_editingassigned[0]['uid']) {
+          return;
+        }
+      }
+      if ($account = user_load($node->field_editingassigned[0]['uid'])) {
+        drupal_mail('cg', 'editorassigned', $account->mail, 'en', array('node' => $node));
+      }
+    }
   }
+}
+
+function cg_mail($key, &$message, $params) {
+  $node = $params['node'];
+  $message['subject'] = '[centenary] Content assigned to you';
+  $message['body'][] = 'The following content has been assigned to you:';
+  $message['body'][] = "===================\n" .
+    "$node->title\n" .
+    "Status: {$node->field_editingstatus[0]['value']}\n" .
+    "Notes: {$node->field_editingnotes[0]['value']}\n" .
+    '===================';
+  $message['body'][] = "View link: http://centenary.bahai.us/node/{$node->nid}";
+  $message['body'][] = "Edit link: http://centenary.bahai.us/node/{$node->nid}/edit";
+  $message['body'][] = "For a list of all content assigned to you, see http://centenary.bahai.us/editing/mine/" . $node->field_editingassigned[0]['uid'];
+  $message['body'][] = "Thanks!\nThe Centenary Site Team";
 }
 
 function cg_form_node_type_form_alter(&$form, $form_state) {
