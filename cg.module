@@ -2,6 +2,7 @@
 
 // $Id$
 
+// Node teaser functionality
 function cg_filter($op, $delta = 0, $format = -1, $text = '') {
   switch ($op) {
     case 'list':
@@ -44,9 +45,11 @@ function cg_filter_tips($delta, $format, $long = FALSE) {
 
 function cg_nodeapi(&$node, $op, $teaser, $page) {
   if ($op == 'view' ) {
+    // Wrap node body in a div
     $node->content['body']['#value'] = '<div class="node-body">' . $node->content['body']['#value'] . '</div>';
   }
   elseif ($op == 'presave') {
+    // Save clip images to main_image field
     if (is_array($node->field_clip_img[0])) {
       $node->field_main_image[0] = array(
         'fid' => $node->field_clip_img[0]['fid'],
@@ -54,6 +57,7 @@ function cg_nodeapi(&$node, $op, $teaser, $page) {
         'data' => $node->field_clip_img[0]['data'],
       );
     }
+    // Email assigned editors
     if (!empty($node->field_editingassigned[0]['uid'])) {
       if ($oldnode = node_load($node->nid)) {
         if ($oldnode->field_editingassigned[0]['uid'] == $node->field_editingassigned[0]['uid']) {
@@ -67,6 +71,7 @@ function cg_nodeapi(&$node, $op, $teaser, $page) {
   }
 }
 
+// Create mail message to assignees
 function cg_mail($key, &$message, $params) {
   $node = $params['node'];
   $message['subject'] = '[centenary] Content assigned to you';
@@ -83,26 +88,26 @@ function cg_mail($key, &$message, $params) {
 }
 
 function cg_form_node_type_form_alter(&$form, $form_state) {
-  // Built in content types do not allow changes to type machine name.
-    if (isset($form['identity']['type']['#default_value'])) {
-      $type = $form['identity']['type']['#default_value'];
-    }
-    else {
-      $type = $form['identity']['type']['#value'];
-    }
-    $form['cg_options'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Centenary Options'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#access' => user_access('administer site configuration'),
-    );
-    $form['cg_options']['cg_superhead'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Node super head'),
-      '#default_value' => variable_get("cg_superhead_$type", ''),
-      '#description' => t("You may optionally enter a super head for all nodes of type $type")
-    );
+  // Add options for superheader
+  if (isset($form['identity']['type']['#default_value'])) {                     // determine node type
+    $type = $form['identity']['type']['#default_value'];
+  }
+  else {
+    $type = $form['identity']['type']['#value'];
+  }
+  $form['cg_options'] = array(                                                  // add form element
+    '#type' => 'fieldset',
+    '#title' => t('Centenary Options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#access' => user_access('administer site configuration'),
+  );
+  $form['cg_options']['cg_superhead'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Node super head'),
+    '#default_value' => variable_get("cg_superhead_$type", ''),
+    '#description' => t("You may optionally enter a super head for all nodes of type $type")
+  );
   if (module_exists('token')) {
     $form['cg_options']['cg_teaserheader'] = array(
       '#type' => 'textfield',
@@ -124,6 +129,7 @@ function cg_form_node_type_form_alter(&$form, $form_state) {
 
 function cg_form_alter(array &$form, array &$form_state, $form_id) {
   if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    // Flag placement for cities
     if ($form['type']['#value'] == 'city') {
       $x = round($form['group_map_position']['field_pos_x'][0]['#default_value']['value'] / 2); 
       $y = round($form['group_map_position']['field_pos_y'][0]['#default_value']['value'] / 2);
