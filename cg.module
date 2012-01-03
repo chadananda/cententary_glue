@@ -158,3 +158,28 @@ function cg_form_alter(array &$form, array &$form_state, $form_id) {
   }
 } /* */
 
+if (module_exists('nat')) {
+  function cg_link($type, $object, $teaser = FALSE) {
+    if ($type == 'node' && !$teaser) {
+      if (is_array($object->taxonomy) && !empty($object->taxonomy)) {
+        foreach ($object->taxonomy as $term) {
+          if (in_array($term->vid, array(3, 5, 8))) {
+            $tids[] = $term->tid;
+          }
+        }
+        if (!empty($tids)) {
+          $nids = nat_get_nids($tids);
+          if (is_array($nids) && !empty($nids)) {
+            foreach ($nids as $nid => $title) {
+              $links['cg_term_links_' . $nid] = array(
+                'href' => "node/$nid",
+                'title' => check_plain($title),
+              );
+            }
+          }
+          return $links;
+        }
+      }
+    }
+  }
+}
