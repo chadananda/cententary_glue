@@ -171,7 +171,7 @@ if (module_exists('nat')) {
           $nids = nat_get_nids($tids);
           if (is_array($nids) && !empty($nids)) {
             foreach ($nids as $nid => $title) {
-              $links['cg_term_links_' . $nid] = array(
+              $links['cg_term_links node-' . $nid] = array(
                 'href' => "node/$nid",
                 'title' => check_plain($title),
               );
