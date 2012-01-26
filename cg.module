@@ -2,6 +2,18 @@
 
 // $Id$
 
+function cg_menu() {
+  $items['admin/centenary-tagger/delete'] = array(
+    'title' => 'Delete tag',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('tag centenary content'),
+    'page callback' => 'cg_tag_delete',
+    'page arguments' => array(3,4,5),
+    'file' => 'centenary_tagger.inc',
+  );
+  return $items;
+}
+
 // Node teaser functionality
 function cg_filter($op, $delta = 0, $format = -1, $text = '') {
   switch ($op) {
@@ -158,6 +170,12 @@ function cg_form_alter(array &$form, array &$form_state, $form_id) {
   }
 } /* */
 
+function cg_perm() {
+  return array(
+    'tag centenary content',
+  );
+}
+
 if (module_exists('nat')) {
   function cg_link($type, $object, $teaser = FALSE) {
     if ($type == 'node' && !$teaser) {
@@ -170,11 +188,24 @@ if (module_exists('nat')) {
         if (!empty($tids)) {
           $nids = nat_get_nids($tids);
           if (is_array($nids) && !empty($nids)) {
+            $thisnid = $object->nid;
+            if (user_access('tag centenary content')) {
+              drupal_add_js(drupal_get_path('module', 'cg') . '/centenary_tagger.js', 'module', 'footer');
+            }
             foreach ($nids as $nid => $title) {
-              $links['cg_term_links node-' . $nid] = array(
-                'href' => "node/$nid",
-                'title' => check_plain($title),
-              );
+              if (db_result(db_query("SELECT status FROM {node} WHERE nid = %d", $nid)) || user_access('tag centenary content')) {
+                if (user_access('tag centenary content')) {
+                  $token = drupal_get_token("delete $thisnid $nid");
+                  $links["cg_term_delete natnode-$nid"] = array(
+                    'href' => "admin/centenary-tagger/delete/$thisnid/$nid/$token",
+                    'title' => 'x',
+                  );
+                }
+                $links["cg_term_links natnode-$nid"] = array(
+                  'href' => "node/$nid",
+                  'title' => check_plain($title),
+                );
+              }
             }
           }
           return $links;
