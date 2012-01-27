@@ -203,7 +203,8 @@ if (module_exists('nat')) {
                 }
                 $links["cg_term_links natnode-$nid"] = array(
                   'href' => "node/$nid",
-                  'title' => check_plain($title),
+                  'title' => $title,
+                  'html' => FALSE,
                 );
               }
             }
