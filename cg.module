@@ -2,6 +2,15 @@
 
 // $Id$
 
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function cg_ctools_plugin_api($module, $api) {
+  if ($module == 'auto_opengraph' && $api == 'auto_opengraph') {
+    return array('version' => 1);
+  }
+}
+
 function cg_menu() {
   $items['admin/centenary-tagger/delete'] = array(
     'title' => 'Delete tag',
