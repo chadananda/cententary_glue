@@ -99,7 +99,7 @@ function cg_default_opengraph_tags() {
   $tagdef->api_version = 1;
   $tagdef->name = 'node__image';
   $tagdef->value = array(
-    'og:image' => '[site-url][field_main_image-filefield-filepath]',
+    'og:image' => '[field_main_image-filefield-filepath]',
   );
   $tagdefs['node__image'] = $tagdef;
 
