@@ -44,6 +44,9 @@ function cg_default_opengraph_tags() {
   $tagdef->value = array(
     'og:title' => '[title]',
     'og:image' => '[field_main_image-filefield-filepath]',
+    'og:audio:title' => '[title]',
+    'og:audio:artist' => 'Centenary Team',
+    'og:audio:album' => '[site-name]',
     'og:audio:type' => '[field_audio-filefield-filemime]',
   );
   $tagdefs['node'] = $tagdef;
