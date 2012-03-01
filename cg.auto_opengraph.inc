@@ -18,6 +18,7 @@ function cg_default_opengraph_tags() {
   $tagdef->name = 'default';
   $tagdef->value = array(
     'og:title' => '[current-page-title]',
+    'og:url' => '[current-page-url]',
     'og:type' => 'article',
     'og:site_name' => '[site-name]',
     'og:description' => '[description]',
@@ -42,7 +43,6 @@ function cg_default_opengraph_tags() {
   $tagdef->name = 'node';
   $tagdef->value = array(
     'og:title' => '[title]',
-    'og:url' => '[site-url]node/[nid]',
     'og:image' => '[field_main_image-filefield-filepath]',
     'og:audio:title' => '[title]',
     'og:audio:artist' => 'Centenary Team',
