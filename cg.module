@@ -176,6 +176,9 @@ function cg_form_alter(array &$form, array &$form_state, $form_id) {
       );
       drupal_add_js(drupal_get_path('module', 'cg') . '/travelmap_picker.js');
     }
+    if ($form['nid'] && in_array($form['type']['#value'], array('vignette', 'talk', 'theme_overview'))) {
+      $form['path']['pathauto_perform_alias']['#default_value'] = 0;
+    }
   }
 } /* */
 
