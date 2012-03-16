@@ -23,13 +23,18 @@ function cg_menu() {
   return $items;
 }
 
-// Node teaser functionality
+// Node filters
 function cg_filter($op, $delta = 0, $format = -1, $text = '') {
   switch ($op) {
     case 'list':
-      return array(0 => t('Teaser filter'));
+      return array( t('Teaser filter'), 
+                    t('Strip MSWord filter'),
+                    t('Fix Baha\'i Names filter'), 
+                  );
     case 'description':
-      return t('Substitutes teaser tags [teaser:123] with node teaser.');
+      if ($delta == 0) return t('Substitutes teaser tags [teaser:132] with node teaser.');
+       else if ($delta == 1) return t('Removes MSWord characters so they won\'t mess with typography and Markdown.');
+       else if ($delta == 2) return t('Cleans up common misspellings of Baha\'i words and names');
     case 'no cache':
       return TRUE;
     case 'prepare':
@@ -37,7 +42,97 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
     case 'settings':
       return;
     case 'process':
-      $matches = array();
+     if ($delta == 0) {
+        if ($text = cg_filter_teasertag($text)) return $text;
+     } 
+     elseif ($delta == 1) {
+       if ($text = cg_filter_strip_mscrap($text)) return $text;
+     }
+     elseif ($delta == 2) {
+      //return preg_replace_callback('!\w+!', 'cg_replace_bahai_words', $text);
+      $text = cg_fix_bahai_words($text);
+      $text = cg_fix_bahai_words($text);
+      $text = cg_fix_bahai_words($text);
+      return $text;
+     }
+    default:
+      return $text;
+  }
+}
+
+ 
+function cg_filter_strip_mscrap($text) {
+ // open and closed quotes
+ $replace = array (
+   '`'   =>   "'",
+   '’'   =>   "'",
+   '“'   =>   '"',
+   '”'   =>   '"', 
+ );
+ $text = str_replace(array_keys($replace), array_values($replace), $text); 
+ // accent remover
+ //$text = strtr($text, 'áéíóúàèìòùäëïöüÿâêîôûå', 'aeiouaeiouaeiouyaeioua' );  
+ $search = explode(",","ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,e,i,ø,u");
+ $replace = explode(",","c,ae,oe,a,e,i,o,u,a,e,i,o,u,a,e,i,o,u,y,a,e,i,o,u,a,e,i,o,u");
+ $text = str_replace($search, $replace, $text);
+ return $text;
+} 
+  
+  
+function cg_fix_bahai_words($text) {
+  $bahai_words = array(
+    "Ba-Ha" => "Baha",
+    "Ba-ha" => "Baha",
+  
+    'Abdulbaha' => 'Abdu\'l-Baha',
+    'Abdul-baha' => 'Abdu\'l-Baha', 
+    'Abdu\'l-baha' => 'Abdu\'l-Baha',  
+    'Abdu\'l-Baha' => 'Abdu\'l-Baha',  
+    'Abdul Baha' => 'Abdu\'l-Baha',  
+    "Abdul Ba-ha" => 'Abdu\'l-Baha',
+    "Abdul Ba ha" => 'Abdu\'l-Baha',
+    'Abdu\'l-Baha' => 'Abdu\'l-Bahá',
+    
+    "ABDUL BAHA" => "ABDU'L-BAHA",
+    "ABDUL-BAHA" => "ABDU'L-BAHA",
+    
+    'Abdu' => "'Abdu",
+    "''Abdu" => "'Abdu",
+    'ABDU' => "'ABDU",
+    "''ABDU" => "'ABDU",
+      
+    'Bahai' => 'Baha\'i',
+    "ba-hai" => 'Baha\'i',
+    "Ba-hai" => 'Baha\'i',
+    'Baha\'i' => 'Bahá\'í',
+    
+    
+    "Bahaollah"  => "Baha'u'llah",
+    "Baha a' Llah" => "Baha'u'llah",
+    "Bah-'o'llah" => "Baha'u'llah",
+    'Behaullah' => "Baha'u'llah",
+    'Baha-u-llah' => "Baha'u'llah",    
+    'Baha-allah' => "Baha'u'llah",
+    "Baha'o'llah" => "Baha'u'llah",
+    "Baha Ollah" => "Baha'u'llah",
+    "Ben Ullah" => "Baha'u'llah",
+    "Baha Ullah" => "Baha'u'llah", 
+    'Baha\'u\'llah' => "Bahá'u'lláh",
+    
+    'Bab' => 'Báb',
+    
+    'Baha' => 'Bahá',
+    
+    'llah' => "lláh",
+    'Khanum' => 'Khánum',
+  );  
+  return str_replace( array_keys($bahai_words), array_values($bahai_words), $text);
+}  
+   
+
+
+function cg_filter_teasertag($text) {
+  $matches = array();
       if (preg_match_all("#\[teaser:([\d]+):*(left|right)*\]#", $text, $matches, PREG_SET_ORDER)) {
         foreach ($matches as $match) {
           if ($node = node_load($match[1])) {
@@ -56,12 +151,15 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
         }
       }
       return $text;
-    default:
-      return $text;
-  }
 }
+
 function cg_filter_tips($delta, $format, $long = FALSE) {
-  return t('Inserting the a tag like [teaser:123] will print a node teaser in that location.  If you include a float direction, i.e. [teaser:123:right], the teaser will be floated in the direction specified.');
+  if ($delta == 0) {
+    return t('Inserting the a tag like [teaser:123] will print a node teaser in that location.  If you include a float direction, i.e. [teaser:123:right], the teaser will be floated in the direction specified.');
+  }
+  else if ($delta == 1) {
+     return '';
+  }  
 }
 
 function cg_nodeapi(&$node, $op, $teaser, $page) {
