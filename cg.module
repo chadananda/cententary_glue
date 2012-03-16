@@ -64,6 +64,7 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
 function cg_filter_strip_mscrap($text) {
  // open and closed quotes
  $replace = array (
+   '‘'   =>   "'", 
    '`'   =>   "'",
    '’'   =>   "'",
    '“'   =>   '"',
