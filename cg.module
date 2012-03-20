@@ -84,30 +84,46 @@ function cg_fix_bahai_words($text) {
   $bahai_words = array(
     "Ba-Ha" => "Baha",
     "Ba-ha" => "Baha",
+    "Baka" => "Baha",
   
-    'Abdulbaha' => 'Abdu\'l-Baha',
-    'Abdul-baha' => 'Abdu\'l-Baha', 
-    'Abdu\'l-baha' => 'Abdu\'l-Baha',  
-    'Abdu\'l-Baha' => 'Abdu\'l-Baha',  
-    'Abdul Baha' => 'Abdu\'l-Baha',  
-    "Abdul Ba-ha" => 'Abdu\'l-Baha',
-    "Abdul Ba ha" => 'Abdu\'l-Baha',
-    'Abdu\'l-Baha' => 'Abdu\'l-Bahá',
+    "Abd-ul-Baha" => "Abdu'l-Baha", 
+    "Abdul Allaho Abha" => "Abdu'l-Baha",
+    "Abd-ul-Baha" => "Abdu'l-Baha",
+    'Abdulbaha' => "Abdu'l-Baha",
+    'Abdul-baha' => "Abdu'l-Baha",
+    'Abdu\'l-baha' => "Abdu'l-Baha",  
+    'Abdu\'l-Baha' => "Abdu'l-Baha", 
+    'Abdul Baha' => "Abdu'l-Baha", 
+    "Abdul Ba-ha" => "Abdu'l-Baha",
+    "Abdul Ba ha" => "Abdu'l-Baha", 
     
     "ABDUL BAHA" => "ABDU'L-BAHA",
-    "ABDUL-BAHA" => "ABDU'L-BAHA",
+    "ABDUL-BAHA" => "ABDU'L-BAHA", 
+    
+    "The Bam " => "The Bab ",
+    "Abdas" => "Abbas",
     
     'Abdu' => "'Abdu",
     "''Abdu" => "'Abdu",
     'ABDU' => "'ABDU",
     "''ABDU" => "'ABDU",
       
+    "Bahists" => "Baha'is",
+    "Babaistic" "Baha'i",
+       
     'Bahai' => 'Baha\'i',
     "ba-hai" => 'Baha\'i',
     "Ba-hai" => 'Baha\'i',
     'Baha\'i' => 'Bahá\'í',
     
-    
+    "Baba O'allah" => "Baha'u'llah",
+    "Baha-Ollah" => "Baha'u'llah",
+    "Baha'oullah" => "Baha'u'llah",
+    "Baha u'Ullah" => "Baha'u'llah",
+    "Baha O'Lallah" => "Baha'u'llah",
+    "Baha Oullah" => "Baha'u'llah",
+    "Baha-ollah" => "Baha'u'llah",
+    "Baha-Ollah" => "Baha'u'llah",
     "Bahaollah"  => "Baha'u'llah",
     "Baha a' Llah" => "Baha'u'llah",
     "Bah-'o'llah" => "Baha'u'llah",
@@ -117,13 +133,10 @@ function cg_fix_bahai_words($text) {
     "Baha'o'llah" => "Baha'u'llah",
     "Baha Ollah" => "Baha'u'llah",
     "Ben Ullah" => "Baha'u'llah",
-    "Baha Ullah" => "Baha'u'llah", 
-    'Baha\'u\'llah' => "Bahá'u'lláh",
+    "Baha Ullah" => "Baha'u'llah",  
     
-    'Bab' => 'Báb',
-    
-    'Baha' => 'Bahá',
-    
+    'Bab' => 'Báb',  
+    'Baha' => 'Bahá', 
     'llah' => "lláh",
     'Khanum' => 'Khánum',
   );  
