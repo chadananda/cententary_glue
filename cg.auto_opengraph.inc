@@ -74,11 +74,6 @@ function cg_default_opengraph_tags() {
   $tagdef->api_version = 1;
   $tagdef->name = 'node__clip';
   $tagdef->value = array(
-    'og:audio' => '[site-url][field_audio-filefield-filepath]',
-    'og:audio:title' => '[title]',
-    'og:audio:artist' => 'Centenary Team',
-    'og:audio:album' => '[site-name]',
-    'og:audio:type' => '[field_audio-filefield-filemime]',
   );
   $tagdefs['node__clip'] = $tagdef;
 
