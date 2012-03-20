@@ -109,7 +109,7 @@ function cg_fix_bahai_words($text) {
     "''ABDU" => "'ABDU",
       
     "Bahists" => "Baha'is",
-    "Babaistic" "Baha'i",
+    "Babaistic" => "Baha'i",
        
     'Bahai' => 'Baha\'i',
     "ba-hai" => 'Baha\'i',
