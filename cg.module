@@ -23,13 +23,18 @@ function cg_menu() {
   return $items;
 }
 
-// Node teaser functionality
+// Node filters
 function cg_filter($op, $delta = 0, $format = -1, $text = '') {
   switch ($op) {
     case 'list':
-      return array(0 => t('Teaser filter'));
+      return array( t('Teaser filter'), 
+                    t('Strip MSWord filter'),
+                    t('Fix Baha\'i Names filter'), 
+                  );
     case 'description':
-      return t('Substitutes teaser tags [teaser:123] with node teaser.');
+      if ($delta == 0) return t('Substitutes teaser tags [teaser:132] with node teaser.');
+       else if ($delta == 1) return t('Removes MSWord characters so they won\'t mess with typography and Markdown.');
+       else if ($delta == 2) return t('Cleans up common misspellings of Baha\'i words and names');
     case 'no cache':
       return TRUE;
     case 'prepare':
@@ -37,7 +42,156 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
     case 'settings':
       return;
     case 'process':
-      $matches = array();
+     if ($delta == 0) {
+        if ($text = cg_filter_teasertag($text)) return $text;
+     } 
+     elseif ($delta == 1) {
+       if ($text = cg_filter_strip_mscrap($text)) return $text;
+     }
+     elseif ($delta == 2) { 
+      return cg_fix_bahai_words($text);
+     }
+    default:
+      return $text;
+  }
+}
+
+ 
+function cg_filter_strip_mscrap($text) {
+ // open and closed quotes
+ $replace = array (
+   '‘'   =>   "'", 
+   '`'   =>   "'",
+   '’'   =>   "'",
+   '“'   =>   '"',
+   '”'   =>   '"', 
+ );
+ $text = str_replace(array_keys($replace), array_values($replace), $text); 
+ /*
+ $str = str_replace(chr(130), ',', $str);    // baseline single quote
+$str = str_replace(chr(131), 'NLG', $str);  // florin
+$str = str_replace(chr(132), '"', $str);    // baseline double quote
+$str = str_replace(chr(133), '...', $str);  // ellipsis
+$str = str_replace(chr(134), '**', $str);   // dagger (a second footnote)
+$str = str_replace(chr(135), '***', $str);  // double dagger (a third footnote)
+$str = str_replace(chr(136), '^', $str);    // circumflex accent
+$str = str_replace(chr(137), 'o/oo', $str); // permile
+$str = str_replace(chr(138), 'Sh', $str);   // S Hacek
+$str = str_replace(chr(139), '<', $str);    // left single guillemet
+// $str = str_replace(chr(140), 'OE', $str);   // OE ligature
+$str = str_replace(chr(145), "'", $str);    // left single quote
+$str = str_replace(chr(146), "'", $str);    // right single quote
+// $str = str_replace(chr(147), '"', $str);    // left double quote
+// $str = str_replace(chr(148), '"', $str);    // right double quote
+$str = str_replace(chr(149), '-', $str);    // bullet
+$str = str_replace(chr(150), '-–', $str);    // endash
+$str = str_replace(chr(151), '--', $str);   // emdash
+// $str = str_replace(chr(152), '~', $str);    // tilde accent
+// $str = str_replace(chr(153), '(TM)', $str); // trademark ligature
+$str = str_replace(chr(154), 'sh', $str);   // s Hacek
+$str = str_replace(chr(155), '>', $str);    // right single guillemet
+// $str = str_replace(chr(156), 'oe', $str);   // oe ligature
+$str = str_replace(chr(159), 'Y', $str);    // Y Dieresis
+$str = str_replace('°C', '&deg;C', $str);    // Celcius is used quite a lot so it makes sense to add this in
+$str = str_replace('£', '&pound;', $str);
+$str = str_replace("'", "'", $str);
+$str = str_replace('"', '"', $str);
+$str = str_replace('–', '&ndash;', $str);
+ */
+ // accent remover
+ //$text = strtr($text, 'áéíóúàèìòùäëïöüÿâêîôûå', 'aeiouaeiouaeiouyaeioua' );  
+ $search = explode(",","ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,e,i,ø,u");
+ $replace = explode(",","c,ae,oe,a,e,i,o,u,a,e,i,o,u,a,e,i,o,u,y,a,e,i,o,u,a,e,i,o,u");
+ $text = str_replace($search, $replace, $text);
+ return $text;
+} 
+  
+  
+function cg_fix_bahai_words($text) {
+  $bahai_words = array( 
+    "Ba-Ha" => "Baha",
+    "Ba-ha" => "Baha",
+    "Baka"  => "Baha",
+  
+    "Abd-ul-Baha" => "Abdu'l-Baha", 
+    "Abdul Allaho Abha" => "Abdu'l-Baha",
+    "Abd-ul-Baha" => "Abdu'l-Baha",
+    'Abdulbaha' => "Abdu'l-Baha",
+    'Abdul-baha' => "Abdu'l-Baha",
+    "Abdu'l-baha" => "Abdu'l-Baha",  
+    "Abdu'l-Baha" => "Abdu'l-Baha", 
+    'Abdul Baha' => "Abdu'l-Baha", 
+    "Abdul Ba-ha" => "Abdu'l-Baha",
+    "Abdul Ba ha" => "Abdu'l-Baha", 
+    
+    "ABDUL BAHA" => "ABDU'L-BAHA",
+    "ABDUL-BAHA" => "ABDU'L-BAHA", 
+    
+    "The Bam " => "The Bab ",
+    "Abdas" => "Abbas",
+    
+    'Abdu' => "'Abdu",
+    "''Abdu" => "'Abdu",
+    'ABDU' => "'ABDU",
+    "''ABDU" => "'ABDU",
+      
+    "Bahists" => "Baha'is",
+    "Bahaist" => "Baha'i",
+    "Babaistic" => "Baha'i", 
+    "Bahai" => "Baha'i",
+    "ba-hai" => "Baha'i",
+    "Ba-hai" => "Baha'i", 
+    "Bahal" => "Baha'i", 
+    
+    "Baba O'allah" => "Baha'u'llah",
+    "Baha-Ollah" => "Baha'u'llah",
+    "Baha'oullah" => "Baha'u'llah",
+    "Baha u'Ullah" => "Baha'u'llah",
+    "Baha O'Lallah" => "Baha'u'llah",
+    "Baha Oullah" => "Baha'u'llah",
+    "Baha-ollah" => "Baha'u'llah",
+    "Baha-Ollah" => "Baha'u'llah",
+    "Bahaollah"  => "Baha'u'llah",
+    "Baha a' Llah" => "Baha'u'llah",
+    "Bah-'o'llah" => "Baha'u'llah",
+    'Behaullah' => "Baha'u'llah",
+    'Baha-u-llah' => "Baha'u'llah",    
+    'Baha-allah' => "Baha'u'llah",
+    "Baha'o'llah" => "Baha'u'llah",
+    "Baha Ollah" => "Baha'u'llah",
+    "Ben Ullah" => "Baha'u'llah",
+    "Baha Ullah" => "Baha'u'llah",  
+    
+  );  
+  
+  // add accents in a few cases
+  $accented_words = array(   
+    "Baha'i" => "Bahá'í", 
+    "Bab" => "Báb",  
+    "Baha'u'llah" => "Bahá'u'lláh",
+    "Abdu'l-Baha" => "Abdu'l-Bahá",
+    "Baha" => "Bahá", 
+  );
+  
+  // fix Baha'i words with at least two runs 
+  foreach ($bahai_words as $needle=>$replace) {  
+    $needle = '/' . str_replace("'", '([^ ]+)', $needle) . '/'; // single quotes
+    $text = preg_replace($needle, $replace, $text, -1, $count);  
+  } 
+  
+  
+  // now add accents
+  foreach ($accented_words as $needle=>$replace) {  
+    $needle = '/' . str_replace("'", '([^ ]+)', $needle) . '/'; // single quotes
+    $text = preg_replace($needle, $replace, $text, -1, $count);  
+  } 
+  return $text;
+}  
+   
+
+
+function cg_filter_teasertag($text) {
+  $matches = array();
       if (preg_match_all("#\[teaser:([\d]+):*(left|right)*\]#", $text, $matches, PREG_SET_ORDER)) {
         foreach ($matches as $match) {
           if ($node = node_load($match[1])) {
@@ -56,12 +210,15 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
         }
       }
       return $text;
-    default:
-      return $text;
-  }
 }
+
 function cg_filter_tips($delta, $format, $long = FALSE) {
-  return t('Inserting the a tag like [teaser:123] will print a node teaser in that location.  If you include a float direction, i.e. [teaser:123:right], the teaser will be floated in the direction specified.');
+  if ($delta == 0) {
+    return t('Inserting the a tag like [teaser:123] will print a node teaser in that location.  If you include a float direction, i.e. [teaser:123:right], the teaser will be floated in the direction specified.');
+  }
+  else if ($delta == 1) {
+     return '';
+  }  
 }
 
 function cg_nodeapi(&$node, $op, $teaser, $page) {
