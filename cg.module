@@ -109,9 +109,16 @@ $str = str_replace('–', '&ndash;', $str);
   
 function cg_fix_bahai_words($text) {
   $bahai_words = array( 
+  
+    '‘'   =>   "'", 
+    '`'   =>   "'",
+    '’'   =>   "'",
+   
+   
     "Ba-Ha" => "Baha",
     "Ba-ha" => "Baha",
     "Baka"  => "Baha",
+    "Baham"  => "Baha",
   
     "Abd-ul-Baha" => "Abdu'l-Baha", 
     "Abdul Allaho Abha" => "Abdu'l-Baha",
@@ -123,7 +130,11 @@ function cg_fix_bahai_words($text) {
     'Abdul Baha' => "Abdu'l-Baha", 
     "Abdul Ba-ha" => "Abdu'l-Baha",
     "Abdul Ba ha" => "Abdu'l-Baha", 
-    
+    "Abdul-baha" => "Abdu'l-Baha",
+    "Abdulbaha" => "Abdu'l-Baha",
+    "Abdul baha" => "Abdu'l-Baha",
+    "Abul-baha" => "Abdu'l-Baha",   
+     
     "ABDUL BAHA" => "ABDU'L-BAHA",
     "ABDUL-BAHA" => "ABDU'L-BAHA", 
     
@@ -140,9 +151,12 @@ function cg_fix_bahai_words($text) {
     "Babaistic" => "Baha'i", 
     "Bahai" => "Baha'i",
     "ba-hai" => "Baha'i",
-    "Ba-hai" => "Baha'i", 
+    "Ba-hai" => "Baha'i",
+    "Baham"  => "Baha'i", 
+    "Bahaic" => "Baha'i",    
     "Bahal" => "Baha'i", 
     
+    "Bahaullah" => "Baha'u'llah",
     "Baba O'allah" => "Baha'u'llah",
     "Baha-Ollah" => "Baha'u'llah",
     "Baha'oullah" => "Baha'u'llah",
@@ -162,29 +176,17 @@ function cg_fix_bahai_words($text) {
     "Ben Ullah" => "Baha'u'llah",
     "Baha Ullah" => "Baha'u'llah",  
     
-  );  
-  
-  // add accents in a few cases
-  $accented_words = array(   
-    "Baha'i" => "Bahá'í", 
+    // add accents in a few cases
+    "Baha'i" => "Bahá'í",     
     "Bab" => "Báb",  
     "Baha'u'llah" => "Bahá'u'lláh",
     "Abdu'l-Baha" => "Abdu'l-Bahá",
-    "Baha" => "Bahá", 
-  );
-  
-  // fix Baha'i words with at least two runs 
-  foreach ($bahai_words as $needle=>$replace) {  
-    $needle = '/' . str_replace("'", '([^ ]+)', $needle) . '/'; // single quotes
-    $text = preg_replace($needle, $replace, $text, -1, $count);  
-  } 
-  
-  
-  // now add accents
-  foreach ($accented_words as $needle=>$replace) {  
-    $needle = '/' . str_replace("'", '([^ ]+)', $needle) . '/'; // single quotes
-    $text = preg_replace($needle, $replace, $text, -1, $count);  
-  } 
+    "Baha" => "Bahá",     
+  );  
+   
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text); 
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);
+ 
   return $text;
 }  
    
