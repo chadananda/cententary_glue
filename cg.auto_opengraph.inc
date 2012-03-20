@@ -44,10 +44,6 @@ function cg_default_opengraph_tags() {
   $tagdef->value = array(
     'og:title' => '[title]',
     'og:image' => '[field_main_image-filefield-filepath]',
-    'og:audio:title' => '[title]',
-    'og:audio:artist' => 'Centenary Team',
-    'og:audio:album' => '[site-name]',
-    'og:audio:type' => '[field_audio-filefield-filemime]',
   );
   $tagdefs['node'] = $tagdef;
 
@@ -57,6 +53,10 @@ function cg_default_opengraph_tags() {
   $tagdef->name = 'node__additional_resource';
   $tagdef->value = array(
     'og:audio' => '[site-url][field_audio-filefield-filepath]',
+    'og:audio:title' => '[title]',
+    'og:audio:artist' => 'Centenary Team',
+    'og:audio:album' => '[site-name]',
+    'og:audio:type' => '[field_audio-filefield-filemime]',
   );
   $tagdefs['node__additional_resource'] = $tagdef;
 
@@ -74,7 +74,6 @@ function cg_default_opengraph_tags() {
   $tagdef->api_version = 1;
   $tagdef->name = 'node__clip';
   $tagdef->value = array(
-    'og:audio' => '[site-url][field_audio-filefield-filepath]',
   );
   $tagdefs['node__clip'] = $tagdef;
 
@@ -116,6 +115,10 @@ function cg_default_opengraph_tags() {
   $tagdef->name = 'node__talk';
   $tagdef->value = array(
     'og:audio' => '[site-url][field_audio-filefield-filepath]',
+    'og:audio:title' => '[title]',
+    'og:audio:artist' => 'Centenary Team',
+    'og:audio:album' => '[site-name]',
+    'og:audio:type' => '[field_audio-filefield-filemime]',
   );
   $tagdefs['node__talk'] = $tagdef;
 
@@ -135,6 +138,10 @@ function cg_default_opengraph_tags() {
   $tagdef->name = 'node__vignette';
   $tagdef->value = array(
     'og:audio' => '[site-url][field_audio-filefield-filepath]',
+    'og:audio:title' => '[title]',
+    'og:audio:artist' => 'Centenary Team',
+    'og:audio:album' => '[site-name]',
+    'og:audio:type' => '[field_audio-filefield-filemime]',
   );
   $tagdefs['node__vignette'] = $tagdef;
 
