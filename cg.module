@@ -108,12 +108,10 @@ $str = str_replace('–', '&ndash;', $str);
   
   
 function cg_fix_bahai_words($text) {
-  $bahai_words = array( 
-  
+  $bahai_words = array(  
     '‘'   =>   "'", 
     '`'   =>   "'",
-    '’'   =>   "'",
-   
+    '’'   =>   "'", 
    
     "Ba-Ha" => "Baha",
     "Ba-ha" => "Baha",
@@ -174,6 +172,7 @@ function cg_fix_bahai_words($text) {
     "Baha'o'llah" => "Baha'u'llah",
     "Baha Ollah" => "Baha'u'llah",
     "Ben Ullah" => "Baha'u'llah",
+    "Baha'ollah" => "Baha'u'llah",    
     "Baha Ullah" => "Baha'u'llah",  
     
     // add accents in a few cases
