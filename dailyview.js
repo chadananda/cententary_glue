@@ -12,5 +12,8 @@ Drupal.behaviors.dailyview = function(context) {
     if (htdiff > 70) {
       $(".view-display-id-attachment_2").css('margin-bottom', (200 - htdiff) + 'px');
     }
+    else {
+      $(".view-display-id-attachment_4").css('margin-bottom', htdiff + 'px');
+    }
   }
 }
