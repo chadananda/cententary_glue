@@ -9,11 +9,11 @@ Drupal.behaviors.dailyview = function(context) {
   }
   else if (sideht > mainht) {
     htdiff = (sideht - mainht) % 200;
-    if (htdiff > 70) {
+    if (htdiff > 55) {
       $(".view-display-id-attachment_2").css('margin-bottom', (200 - htdiff) + 'px');
     }
     else {
-      $(".view-display-id-attachment_4").css('margin-bottom', htdiff + 'px');
+      $(".view-display-id-attachment_4").css('margin-bottom', (htdiff + 19) + 'px');
     }
   }
 }
