@@ -59,12 +59,14 @@ function cg_filter($op, $delta = 0, $format = -1, $text = '') {
  
 function cg_filter_strip_mscrap($text) {
  // open and closed quotes
+ 
  $replace = array (
+   html_entity_decode('&#039;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote
    '‘'   =>   "'", 
    '`'   =>   "'",
    '’'   =>   "'",
    '“'   =>   '"',
-   '”'   =>   '"', 
+   '”'   =>   '"',  
  );
  $text = str_replace(array_keys($replace), array_values($replace), $text); 
  /*
@@ -108,11 +110,10 @@ $str = str_replace('–', '&ndash;', $str);
   
   
 function cg_fix_bahai_words($text) {
-  $bahai_words = array(  
-    '‘'   =>   "'", 
-    '`'   =>   "'",
-    '’'   =>   "'", 
-   
+  // remove accents, curly quotes etc.
+  $text = cg_filter_strip_mscrap($text);
+ 
+  $bahai_words = array(   
     "Ba-Ha" => "Baha",
     "Ba-ha" => "Baha",
     "Baka"  => "Baha",
@@ -139,8 +140,10 @@ function cg_fix_bahai_words($text) {
     "The Bam " => "The Bab ",
     "Abdas" => "Abbas",
     
-    'Abdu' => "'Abdu",
+    "Abdu" => "'Abdu",
+    "'''Abdu" => "'Abdu",
     "''Abdu" => "'Abdu",
+    
     'ABDU' => "'ABDU",
     "''ABDU" => "'ABDU",
       
@@ -185,6 +188,9 @@ function cg_fix_bahai_words($text) {
    
   $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text); 
   $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text); 
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);
+  
  
   return $text;
 }  
