@@ -425,7 +425,7 @@ function cg_views_query_alter(&$view, &$query) {
       $nexttext = format_date(strtotime($nextdate), 'custom', 'F j');
       $nextlink = '<div class="header-link next">' . l("$nexttext >>", "daily/$nextdate") . '</div>';
       $view->display_handler->options['header'] = $prevlink . $nextlink . '<h1 class="headline">The Daily Centenarian</h1>';
-      $view->display_handler->options['header_format'] = 1;
+      $view->display_handler->options['header_format'] = 2;
       $view->display_handler->options['header_empty'] = 1;
     }
   }
