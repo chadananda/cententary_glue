@@ -258,6 +258,7 @@ function cg_nodeapi(&$node, $op, $teaser, $page) {
         'data' => $node->field_clip_img[0]['data'],
       );
     }
+    $node->moderate = (strlen($node->body) > 4000);
     // Email assigned editors
     if (!empty($node->field_editingassigned[0]['uid'])) {
       if ($oldnode = node_load($node->nid)) {
