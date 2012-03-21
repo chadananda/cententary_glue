@@ -427,6 +427,7 @@ function cg_views_query_alter(&$view, &$query) {
       $view->display_handler->options['header'] = $prevlink . $nextlink . '<h1 class="headline">The Daily Centenarian</h1>';
       $view->display_handler->options['header_format'] = 2;
       $view->display_handler->options['header_empty'] = 1;
+      drupal_add_js(drupal_get_path('module', 'cg') . '/dailyview.js');
     }
   }
 }
