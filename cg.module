@@ -206,7 +206,11 @@ function cg_fix_bahai_words($text) {
 
 function cg_clean_bahai_title($title) {
   $title = cg_fix_bahai_words($title);
-  if (module_exists('typogrify'))  $title = Typogrify::filter($title);  
+  if (module_exists('typogrify')) {
+    include_once(drupal_get_path('module', 'typogrify') . '/typogrify.class.php');
+    include_once(drupal_get_path('module', 'typogrify') . '/smartypants.php');    
+    $title = Typogrify::filter($title);  
+  }
   $title = trim(strip_tags($title));
   return $title;
 }
