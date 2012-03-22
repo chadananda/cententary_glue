@@ -112,10 +112,7 @@ $str = str_replace('–', '&ndash;', $str);
 } 
   
   
-function cg_fix_bahai_words($text) {
-  // remove accents, curly quotes etc.
-  $text = cg_filter_strip_mscrap($text);
- 
+function cg_fix_bahai_words($text) { 
   $bahai_words = array(   
     "Ba-Ha" => "Baha",
     "Ba-ha" => "Baha",
@@ -141,11 +138,7 @@ function cg_fix_bahai_words($text) {
     "ABDUL-BAHA" => "ABDU'L-BAHA", 
     
     "The Bam " => "The Bab ",
-    "Abdas" => "Abbas",
-    
-    "Abdu" => "'Abdu",
-    "'''Abdu" => "'Abdu",
-    "''Abdu" => "'Abdu",
+    "Abdas" => "Abbas", 
     
     'ABDU' => "'ABDU",
     "''ABDU" => "'ABDU",
@@ -180,22 +173,26 @@ function cg_fix_bahai_words($text) {
     "Ben Ullah" => "Baha'u'llah",
     "Baha'ollah" => "Baha'u'llah",    
     "Baha Ullah" => "Baha'u'llah",  
-    
-    // add accents in a few cases
-    
   );  
   $accents = array(
+    // add accents in a few cases 
     "Baha'i" => "Bahá'í",     
     "Bab" => "Báb",  
     "Baha'u'llah" => "Bahá'u'lláh",
     "Abdu'l-Baha" => "Abdu'l-Bahá",
     "Baha" => "Bahá",   
   );
-   
-  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);  
-  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text); 
-  // here we might want to add additional regex replace for odd curly quotes
   
+  // strip accents, curly quotes etc.
+  $text = cg_filter_strip_mscrap($text); 
+  $text = preg_replace('/[^ ]?Abd/', "Abd", $text); // remove any non-space before Abd
+  $text = preg_replace('/Abd/', "'Abd", $text); // add a single quote before Abd
+  
+  // fixes misspelled baha'i words
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);  
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);  
+  
+  // add back in accents to Baha'i, Baha'u'llah and Abdu'l-Baha only
   $text = str_replace(array_keys($accents), array_values($accents), $text);   
  
   return $text;
