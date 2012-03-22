@@ -206,7 +206,7 @@ function cg_fix_bahai_words($text) {
 
 function cg_clean_bahai_title($title) {
   $title = cg_fix_bahai_words($title);
-  if (module_exists('typografy')) $title =  Typogrify::initial_quotes($title);
+  if (module_exists('typogrify'))  $title = Typogrify::filter($title);  
   $title = trim(strip_tags($title));
   return $title;
 }
