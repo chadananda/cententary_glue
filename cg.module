@@ -190,19 +190,26 @@ function cg_fix_bahai_words($text) {
   
   // strip accents, curly quotes etc.
   $text = cg_filter_strip_mscrap($text); 
- // $text = str_replace('&#039;', "'", $text);  
- // $text = preg_replace('/[^ ]?Abd/', "Abd", $text); // remove any non-space before Abd
- // $text = preg_replace('/Abd/', "'Abd", $text); // add a single quote before Abd
+  // $text = str_replace('&#039;', "'", $text);  
+  // $text = preg_replace('/[^ ]?Abd/', "Abd", $text); // remove any non-space before Abd
+  // $text = preg_replace('/Abd/', "'Abd", $text); // add a single quote before Abd
   
-  // fixes misspelled baha'i words
-  
+  // fixes misspelled baha'i words 
   $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);  
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text); 
   
   // add back in accents to Baha'i, Baha'u'llah and Abdu'l-Baha only
   $text = str_replace(array_keys($accents), array_values($accents), $text);   
  
   return $text;
 }  
+
+function cg_clean_bahai_title($title) {
+  $title = cg_fix_bahai_words($title);
+  if (module_exists('typografy')) $title =  Typogrify::initial_quotes($title);
+  $title = trim(strip_tags($title));
+  return $title;
+}
    
 
 
