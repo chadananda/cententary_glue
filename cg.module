@@ -262,6 +262,7 @@ function cg_nodeapi(&$node, $op, $teaser, $page) {
         'data' => $node->field_clip_img[0]['data'],
       );
     }
+    $node->moderate = (strlen($node->body) > 4000);
     // Email assigned editors
     if (!empty($node->field_editingassigned[0]['uid'])) {
       if ($oldnode = node_load($node->nid)) {
@@ -416,5 +417,16 @@ function cg_views_query_alter(&$view, &$query) {
   if ($view->name == 'daily') {
     $query->where['date']['clauses'][0] = "node_data_field_historical_date.field_historical_date_value = '%s'";
     $query->where['date']['args'][0] = $view->args[0] . 'T00:00:00';
+    if ($view->display_handler->display->id == 'page') {
+      $prevdate = str_replace('1911', '1912', format_date(strtotime($view->args[0] . ' -1 day'), 'custom', 'Y-m-d'));
+      $prevtext = format_date(strtotime($prevdate), 'custom', 'F j');
+      $prevlink = '<div class="header-link prev">' . l("<< $prevtext", "daily/$prevdate") . '</div>';
+      $nextdate = str_replace('1913', '1912', format_date(strtotime($view->args[0] . ' +1 day'), 'custom', 'Y-m-d'));
+      $nexttext = format_date(strtotime($nextdate), 'custom', 'F j');
+      $nextlink = '<div class="header-link next">' . l("$nexttext >>", "daily/$nextdate") . '</div>';
+      $view->display_handler->options['header'] = $prevlink . $nextlink . '<h1 class="headline">The Daily Centenarian</h1>';
+      $view->display_handler->options['header_format'] = 1;
+      $view->display_handler->options['header_empty'] = 1;
+    }
   }
 }
