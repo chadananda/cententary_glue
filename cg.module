@@ -63,7 +63,10 @@ function cg_filter_strip_mscrap($text) {
  $replace = array (
    html_entity_decode('&#039;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote
    html_entity_decode('&#145;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote  
-   html_entity_decode('&#146;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote   
+   html_entity_decode('&#146;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote 
+   '&#039;' =>   "'",   
+   '&#145;' =>   "'",
+   '&#146;' =>   "'", 
    '‘'   =>   "'", 
    '`'   =>   "'",
    '’'   =>   "'",
