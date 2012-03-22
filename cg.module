@@ -62,8 +62,11 @@ function cg_filter_strip_mscrap($text) {
  
  $replace = array (
    html_entity_decode('&#039;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote
+   html_entity_decode('&#145;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote  
+   html_entity_decode('&#146;', ENT_COMPAT, 'UTF-8') => "'", // tough invisible single quote   
    '‘'   =>   "'", 
    '`'   =>   "'",
+   '’'   =>   "'",
    '’'   =>   "'",
    '“'   =>   '"',
    '”'   =>   '"',  
@@ -179,18 +182,21 @@ function cg_fix_bahai_words($text) {
     "Baha Ullah" => "Baha'u'llah",  
     
     // add accents in a few cases
+    
+  );  
+  $accents = array(
     "Baha'i" => "Bahá'í",     
     "Bab" => "Báb",  
     "Baha'u'llah" => "Bahá'u'lláh",
     "Abdu'l-Baha" => "Abdu'l-Bahá",
-    "Baha" => "Bahá",     
-  );  
+    "Baha" => "Bahá",   
+  );
    
+  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);  
   $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text); 
-  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);
-  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text); 
-  $text = str_replace(array_keys($bahai_words), array_values($bahai_words), $text);
+  // here we might want to add additional regex replace for odd curly quotes
   
+  $text = str_replace(array_keys($accents), array_values($accents), $text);   
  
   return $text;
 }  
