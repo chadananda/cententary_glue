@@ -425,23 +425,51 @@ function cg_views_query_alter(&$view, &$query) {
   if ($view->name == 'daily') {
     $query->where['date']['clauses'][0] = "node_data_field_historical_date.field_historical_date_value = '%s'";
     $date = $query->where['date']['args'][0] = $view->args[0] . 'T00:00:00';
-    if ($view->display_handler->display->id == 'page') {
-      $view->args[0] . 'T00:00:00';
-      $testdate = ($date == '1912-01-01T00:00:00') ? '1913-01-01T00:00:00' : $date;
-      $prevdate = db_result(db_query("SELECT field_historical_date_value FROM {content_field_historical_date} d
+    if ($view->display_handler->display->id == 'page') { // On the daily page itself
+
+      // Set Facebook meta headers
+      $n = db_fetch_object(db_query("SELECT n.title, f.filepath FROM {node} n 
+        LEFT JOIN {content_field_main_image} i USING (vid)
+        LEFT JOIN {files} f ON (f.fid = i.field_main_image_fid)
+        WHERE n.type IN ('clip', 'talk', 'vignette') AND n.status
+        ORDER BY n.sticky DESC, n.type ASC, n.moderate DESC LIMIT 1"));
+      $img = imagecache_create_url('page-main-image', $n->filepath);
+      $og = array(
+        'og:title' => 'The Daily Centenarian - ' . $view->args[0],
+        'og:type' => 'article',
+        'fb:app_id' => '406308229385243',
+        'og:site_name' => variable_get('site_name', ''),
+        'og:description' => $n->title,
+        'og:url' => 'http://centenary.bahai.us/daily/' . $view->args[0],
+        'og:image' => $img,
+      );
+      foreach ($og as $property => $value) {
+        drupal_set_html_head('<meta property="' . $property . '" content="' . str_replace('"', "'", strip_tags($value)) . '" />');
+      }
+
+      // Parse view dates, etc.
+      $prevlink = $nextlink = l('(back to today)', 'daily');
+      //$testdate = ($date == '1912-01-01T00:00:00') ? '1913-01-01T00:00:00' : $date;
+      if ($prevdate = db_result(db_query("SELECT field_historical_date_value FROM {content_field_historical_date} d
         LEFT JOIN {node} n USING (vid)
-        WHERE n.status = 1 AND d.field_historical_date_value < '%s' ORDER BY d.field_historical_date_value DESC", $testdate));
-      $prevdate = str_replace('T00:00:00', '', $prevdate);
-      $prevtext = format_date(strtotime($prevdate), 'custom', 'F j');
-      $prevlink = '<div class="header-link prev">' . l("<< $prevtext", "daily/$prevdate") . '</div>';
-      $testdate = ($date == '1912-12-31T00:00:00') ? '1911-12-31T00:00:00' : $date;
-      $nextdate = db_result(db_query("SELECT field_historical_date_value FROM {content_field_historical_date} d
+        WHERE n.status = 1 AND d.field_historical_date_value < '%s'
+        AND d.field_historical_date_value >= '1911-01-01T00:00:00'
+        ORDER BY d.field_historical_date_value DESC", $date))) {
+        $prevdate = str_replace('T00:00:00', '', $prevdate);
+        $prevtext = format_date(strtotime($prevdate), 'custom', 'F j');
+        $prevlink = l("<< $prevtext", "daily/$prevdate");
+      }
+      //$testdate = ($date == '1912-12-31T00:00:00') ? '1911-12-31T00:00:00' : $date;
+      if ($nextdate = db_result(db_query("SELECT field_historical_date_value FROM {content_field_historical_date} d
         LEFT JOIN {node} n USING (vid)
-        WHERE n.status = 1 AND d.field_historical_date_value > '%s' ORDER BY d.field_historical_date_value ASC", $testdate));
-      $nextdate = str_replace('T00:00:00', '', $nextdate);
-      $nexttext = format_date(strtotime($nextdate), 'custom', 'F j');
-      $nextlink = '<div class="header-link next">' . l("$nexttext >>", "daily/$nextdate") . '</div>';
-      $view->display_handler->options['header'] = $prevlink . $nextlink . '<h1 class="headline">The Daily Centenarian</h1>';
+        WHERE n.status = 1 AND d.field_historical_date_value > '%s'
+        AND d.field_historical_date_value <= '1913-12-31T00:00:00'
+        ORDER BY d.field_historical_date_value ASC", $date))) {
+        $nextdate = str_replace('T00:00:00', '', $nextdate);
+        $nexttext = format_date(strtotime($nextdate), 'custom', 'F j');
+        $nextlink = l("$nexttext >>", "daily/$nextdate");
+      }
+      $view->display_handler->options['header'] = "<div class='header-link prev'>$prevlink</div><div class='header-link next'>$nextlink</div><h1 class='headline'>The Daily Centenarian</h1>";
       $view->display_handler->options['header_format'] = 2;
       $view->display_handler->options['header_empty'] = 1;
       drupal_add_js(drupal_get_path('module', 'cg') . '/dailyview.js');
