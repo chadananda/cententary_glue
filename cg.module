@@ -430,9 +430,11 @@ function cg_views_query_alter(&$view, &$query) {
       // Set Facebook meta headers
       $n = db_fetch_object(db_query("SELECT n.title, f.filepath FROM {node} n 
         LEFT JOIN {content_field_main_image} i USING (vid)
+        LEFT JOIN {content_field_historical_date} d USING (vid)
         LEFT JOIN {files} f ON (f.fid = i.field_main_image_fid)
         WHERE n.type IN ('clip', 'talk', 'vignette') AND n.status
-        ORDER BY n.sticky DESC, n.type ASC, n.moderate DESC LIMIT 1"));
+        AND d.field_historical_date_value = '%s'
+        ORDER BY n.sticky DESC, n.type ASC, n.moderate DESC LIMIT 1", $date));
       $img = imagecache_create_url('page-main-image', $n->filepath);
       $og = array(
         'og:title' => 'The Daily Centenarian - ' . $view->args[0],
