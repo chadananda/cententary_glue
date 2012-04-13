@@ -428,23 +428,34 @@ function cg_views_query_alter(&$view, &$query) {
     if ($view->display_handler->display->id == 'page') { // On the daily page itself
 
       // Set Facebook meta headers
-      $n = db_fetch_object(db_query("SELECT n.title, f.filepath FROM {node} n 
-        LEFT JOIN {content_field_main_image} i USING (vid)
-        LEFT JOIN {content_field_historical_date} d USING (vid)
-        LEFT JOIN {files} f ON (f.fid = i.field_main_image_fid)
-        WHERE n.type IN ('clip', 'talk', 'vignette') AND n.status
-        AND d.field_historical_date_value = '%s'
-        ORDER BY n.sticky DESC, n.type ASC, n.moderate DESC LIMIT 1", $date));
-      $img = imagecache_create_url('page-main-image', $n->filepath);
       $og = array(
-        'og:title' => 'The Daily Centenarian - ' . $view->args[0],
-        'og:type' => 'article',
+        'og:title' => 'The Daily Centenarian',
+        'og:type' => 'website',
         'fb:app_id' => '406308229385243',
         'og:site_name' => variable_get('site_name', ''),
-        'og:description' => $n->title,
-        'og:url' => 'http://centenary.bahai.us/daily/' . $view->args[0],
-        'og:image' => $img,
+        'og:description' => "Your source for news, stories, and personal recollections about 'Abdu'l-Bahá in 1912.",
+        'og:url' => 'http://centenary.bahai.us/daily',
+        'og:image' => 'http://centenary.bahai.us/sites/all/themes/centenary/images/daily-icon.png',
       );
+      if (arg(1) == $view->args[0]) {
+        $og = array_merge($og, array(
+          'og:title' => 'The Daily Centenarian - ' . $view->args[0],
+          'og:type' => 'article',
+          'og:url' => 'http://centenary.bahai.us/daily/' . $view->args[0],
+        ));
+        if ($n = db_fetch_object(db_query("SELECT n.title, f.filepath FROM {node} n
+          LEFT JOIN {content_field_main_image} i USING (vid)
+          LEFT JOIN {content_field_historical_date} d USING (vid)
+          LEFT JOIN {files} f ON (f.fid = i.field_main_image_fid)
+          WHERE n.type IN ('clip', 'talk', 'vignette') AND n.status
+          AND d.field_historical_date_value = '%s'
+          ORDER BY n.sticky DESC, n.type ASC, n.moderate DESC LIMIT 1", $date))) {
+          $img = imagecache_create_url('page-main-image', $n->filepath);
+          $og['og:description'] = $n->title;
+          $og['og:image'] = $img;
+        }
+      }
+
       foreach ($og as $property => $value) {
         drupal_set_html_head('<meta property="' . $property . '" content="' . str_replace('"', "'", strip_tags($value)) . '" />');
       }
