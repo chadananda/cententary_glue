@@ -78,7 +78,7 @@ function cg_daily_archive($date = FALSE, $all = FALSE) {
       $url_date = str_replace('T00:00:00', '', $r->date);
       $display_date = format_date(strtotime($r->date), 'custom', 'D, F j, Y');
       $title = cg_clean_bahai_title(check_plain($r->title));
-      $img = imagecache_create_url('teaser', $r->filepath);
+      $img = imagecache_create_url('teaser', $r->img);
       $link = "/daily/$url_date";
       $more = format_plural($r->count, '1 article', '@count articles');
       $text = <<<EOF
