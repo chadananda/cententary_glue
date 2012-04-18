@@ -28,6 +28,20 @@ function cg_menu() {
     'page arguments' => array('cg_settings_form'),
     'file' => 'centenary.admin.inc',
   );
+  $items['daily-archive'] = array(
+    'title' => 'Daily Centenarian Archive',
+    'description' => 'Archive of the Daily Centenarian',
+    'access callback' => TRUE,
+    'page callback' => 'cg_daily_archive',
+    'file' => 'centenary.admin.inc',
+  );
+  $items['daily-archive/rss'] = array(
+    'title' => 'Daily Centenarian : Archive',
+    'description' => 'Archive of the Daily Centenarian',
+    'access callback' => TRUE,
+    'page callback' => 'cg_daily_archive_rss',
+    'file' => 'centenary.admin.inc',
+  );
   return $items;
 }
 
