@@ -68,7 +68,8 @@ function cg_daily_archive($date = FALSE, $all = FALSE) {
     drupal_goto('daily-archive/1912-' . format_date(time(), 'custom', 'm'));
   }
   drupal_set_html_head("<link rel='canonical' href='http://centenary.bahai.us/daily-archive/$date' />");
-  if (($cache = cache_get('cg:daily-archive-' . $date, 'cache_page'))
+  if (!$all
+      && ($cache = cache_get('cg:daily-archive-' . $date, 'cache_page'))
       && !empty($cache->data)
       && (time() < $cache->expire))
   {
