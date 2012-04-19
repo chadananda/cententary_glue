@@ -75,11 +75,10 @@ function cg_daily_archive($date = FALSE, $all = FALSE) {
   }
   else {
     foreach ($rows as $r) {
-      $url_date = str_replace('T00:00:00', '', $r->date);
       $display_date = format_date(strtotime($r->date), 'custom', 'D, F j, Y');
       $title = check_plain(cg_fix_bahai_words($r->title));
       $img = imagecache_create_url('teaser', $r->img);
-      $link = "/daily/$url_date";
+      $link = "/daily/$r->date";
       $more = format_plural($r->count, '1 article', '@count articles');
       $text = <<<EOF
 <div class="view-id-daily view-display-id-block_1">
@@ -143,8 +142,77 @@ EOF;
 }
 
 function cg_daily_archive_rss() {
-  $q = cg_daily_archive_query('1912', FALSE);
+  global $base_url, $language;
+  $rows = cg_daily_archive_data('1912', FALSE);
+  $items = '';
+  foreach ($rows as $r) {
+    
+    // Link
+    $display_date = format_date(strtotime($r->date), 'custom', 'D, M j, Y');
+    $link = url("daily/$r->date", array('absolute' => TRUE));
 
+    // Title
+    $title = '"' . $r->title . '"' .
+      (($n = $r->count - 1) ? format_plural($n, ' and 1 other article', ' and @count other articles') : '');
+
+    // Extras
+    $extras = array();
+    $e = array(
+      'pubDate' => gmdate('r', strtotime("$r->date +100 years")),
+      'dc:creator' => 'Centenary Team',
+      'guid' => "http://centenary.bahai.us/daily/$r->date",
+    );
+    foreach ($e as $k=>$v) {
+      $extras[] = array('key' => $k, 'value' => $v);
+    }
+
+    if ($r->img) {
+      // Image
+      $extras[] = array(
+        'key' => 'enclosure',
+        'attributes' => array(
+          'url' => imagecache_create_url('page-main-image', $r->img),
+          'type' => $r->filemime,
+          'length' => $r->filesize,
+        ),
+      );
+    }
+    $item = format_rss_item("The Daily Centenarian for $display_date", $link, $title, $extras);
+    if ($r->img) {
+      $item = str_replace('<description>', '<description><![CDATA[<a href="' .
+        $base_url . '/daily/' . $r->date . '"> <img align="left" hspace="5" src="' .
+        imagecache_create_url('teaser', $r->img) . '"/></a> ', $item);
+      $item = str_replace('</description>', "]]>\n</description>", $item);
+    }
+    $items .= $item;
+  }
+  $channel = array(
+    'title' => 'The Daily Centenarian',
+    'link' => 'http://centenary.bahai.us/daily',
+    'description' => "The internet source for news, talks, stories and personal
+ recollections surrounding 'Abdu'l-Bahá's journeys through America in 1912.",
+  );
+  $extras = array(
+    array(
+      'key' => 'image',
+      'attributes' => array(
+        'link' => $base_url . '/daily',
+        'title' => 'The Daily Centenarian',
+        'url' => $base_url . '/sites/all/themes/centenary/images/daily-icon.png',
+        'height' => '149',
+        'width' => '210',
+      ),
+    ),
+  );
+  $namespaces = array('xmlns:dc' => 'http://purl.org/dc/elements/1.1/');
+
+  $output = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+  $output .= "<rss version=\"2.0\" xml:base=\"http://centenary.bahai.us/daily\" " . drupal_attributes($namespaces) . ">\n";
+  $output .= format_rss_channel($channel['title'], $channel['link'], $channel['description'], $items, $language->language, $extras);
+  $output .= "</rss>\n";
+
+  drupal_set_header('Content-Type: application/rss+xml; charset=utf-8');
+  print $output;
 }
 
 function cg_daily_archive_date($date = FALSE) {
@@ -163,7 +231,7 @@ function cg_daily_archive_data($month, $all = FALSE) {
 
   // Text for the final query
   $query = "SELECT n.title,
-    d.field_historical_date_value AS date, f.filepath AS img
+    d.field_historical_date_value AS date, f.filepath AS img, f.filemime, f.filesize
     FROM {node} n LEFT JOIN {content_field_historical_date} d USING (vid)
     LEFT JOIN {content_field_main_image} i USING (vid)
     LEFT JOIN {files} f ON (i.field_main_image_fid = f.fid)
@@ -189,6 +257,7 @@ function cg_daily_archive_data($month, $all = FALSE) {
   while($date = db_fetch_object($datequery)) {
     $data[$date->date] = db_fetch_object(db_query($query, $date->date));
     $data[$date->date]->count = $date->count;
+    $data[$date->date]->date = str_replace('T00:00:00', '', $data[$date->date]->date);
   }
   return $data;
 }
