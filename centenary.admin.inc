@@ -85,18 +85,23 @@ function cg_daily_archive($date = FALSE, $all = FALSE) {
       foreach ($rows as $r) {
         $display_date = format_date(strtotime($r->date), 'custom', 'D, F j, Y');
         $title = check_plain(cg_fix_bahai_words($r->title));
-        $img = imagecache_create_url('teaser', $r->img);
+        $img = '';
         $link = "/daily/$r->date";
         $more = format_plural($r->count, '1 article', '@count articles');
+        $image_markup = '';
+        if ($r->img) {
+          $img = imagecache_create_url('teaser', $r->img);
+          $image_markup = "<div class='views-field-field-main-image-fid'>
+            <a href='$link'><img width='55' height='55' src='$img' class='imagecache imagecache-teaser imagecache-default imagecache-teaser_default'></a>
+          </div>";
+        }
         $text = <<<EOF
 <div class="view-id-daily view-display-id-block_1">
   <div class="view-header">
     <p><a href="$link" class="daily-centenarian-link"><span class="daily-headline">$display_date</span></a></p>
   </div>
   <div class="view-content">
-    <div class="views-field-field-main-image-fid">
-      <a href="$link"><img width="55" height="55" src="$img" class="imagecache imagecache-teaser imagecache-default imagecache-teaser_default"></a>
-    </div>
+    $image_markup
     <div class="views-field-title">
       <a href="$link">$title</a>
     </div>
