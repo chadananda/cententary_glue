@@ -76,6 +76,8 @@ function cg_daily_archive($date = FALSE, $all = FALSE) {
     $output = $cache->data;
   }
   else {
+    $notall = ($all && user_access('administer nodes')) ? '' : "AND d.field_historical_date_value <= '19$thisdate'";
+    if ($notall) { $all = FALSE; }
     $rows = cg_daily_archive_data(cg_daily_archive_date($date), $all);
     drupal_set_title("Daily Centenarian Archive : " . format_date(strtotime($date), 'custom', 'F Y'));
     if (!is_array($rows)) {
@@ -117,7 +119,6 @@ EOF;
 
     // NAVIGATION
     $thisdate = format_date(time(), 'custom', 'y-m-d');
-    $notall = ($all && user_access('administer nodes')) ? '' : "AND d.field_historical_date_value <= '19$thisdate'";
     if ($lastdate = db_result(db_query("SELECT d.field_historical_date_value
       FROM {node} n LEFT JOIN {content_field_historical_date} d USING (vid) WHERE
       n.status AND n.type IN ('clip', 'talk', 'vignette') AND
