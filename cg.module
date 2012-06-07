@@ -436,6 +436,13 @@ if (module_exists('nat')) {
 }
 
 function cg_views_query_alter(&$view, &$query) {
+  if ($view->name == 'weekly') {
+    $arg = format_date(strtotime($view->args[0]), 'custom', 'w');
+    $arg2 = 6-$arg;
+    $date1 = $arg == '0' ? $view->args[0] : format_date(strtotime($view->args[0] . " -$arg days"), 'custom', 'Y-m-d');
+    $date2 = $arg == '6' ? $view->args[0] : format_date(strtotime($view->args[0] . " +$arg2 days"), 'custom', 'Y-m-d');
+    $query->where['date']['clauses'][0] = "node_data_field_historical_date.field_historical_date_value BETWEEN '{$date1}T00:00:00' AND '{$date2}T11:59:59'";
+  }
   if ($view->name == 'daily') {
     $query->where['date']['clauses'][0] = "node_data_field_historical_date.field_historical_date_value = '%s'";
     $date = $query->where['date']['args'][0] = $view->args[0] . 'T00:00:00';
