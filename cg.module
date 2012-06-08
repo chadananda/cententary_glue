@@ -436,7 +436,7 @@ if (module_exists('nat')) {
 }
 
 function cg_views_query_alter(&$view, &$query) {
-  if ($view->name == 'weekly') {
+  if ($view->name == 'weekly' || $view->name == 'front_weekly') {
     $arg = format_date(strtotime($view->args[0]), 'custom', 'w');
     $arg2 = 6-$arg;
     $date1 = $arg == '0' ? $view->args[0] : format_date(strtotime($view->args[0] . " -$arg days"), 'custom', 'Y-m-d');
