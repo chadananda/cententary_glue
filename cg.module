@@ -563,7 +563,15 @@ function cg_block($op = 'list', $delta = 0, $edit = array()) {
           $img = imagecache_create_url('teaser', $r->img);
           $image_markup = "<a href='$link'><img height='46' width='46' src='$img' class='imagecache imagecache-teaser imagecache-default imagecache-teaser_default'></a>";
         }
-        $text = "<div class='slide'>$image_markup<a href='$link'><span class='ticker-daily-link'>The Daily Centenarian</span> &middot; <span class='ticker-date'>$display_date</span><span class='ticker-title'>$title</span>$more</div>";
+        $text = "<div class='slide'>
+          $image_markup
+          <a href='$link'>
+            <span class='ticker-daily-link'>The Daily Centenarian</span> &middot;
+            <span class='ticker-date'>$display_date</span>
+            <span class='ticker-title'>$title</span>
+            $more
+          </a>
+        </div>";
         $output = $output . $text;
       }
       drupal_add_js(drupal_get_path('module', 'views_slideshow') . '/js/jquery.cycle.all.min.js', 'module');
