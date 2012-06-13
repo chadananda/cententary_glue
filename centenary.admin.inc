@@ -258,14 +258,7 @@ function cg_daily_archive_data($month, $all = FALSE) {
   }
 
   // Text for the final query
-  $query = "SELECT n.title,
-    d.field_historical_date_value AS date, f.filepath AS img, f.filemime, f.filesize
-    FROM {node} n LEFT JOIN {content_field_historical_date} d USING (vid)
-    LEFT JOIN {content_field_main_image} i USING (vid)
-    LEFT JOIN {files} f ON (i.field_main_image_fid = f.fid)
-    WHERE n.status AND n.type IN ('clip', 'talk', 'vignette') AND
-    d.field_historical_date_value = '%s'
-    ORDER BY n.sticky DESC, n.type ASC, n.moderate DESC LIMIT 0,1";
+  $query = cg_daily_query();
 
   // build the date query
   $where = ("n.status AND n.type IN ('clip', 'talk', 'vignette') AND

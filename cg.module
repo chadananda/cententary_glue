@@ -526,3 +526,76 @@ function cg_post_fb($page, $text = '') {
     }
   }  
 }
+
+function cg_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      return array(
+        0 => array(
+          'info' => 'Daily Centenarian Ticker',
+          'cache' => BLOCK_NO_CACHE,
+        )
+      );
+      break;
+    case 'view':
+      $arg = '1912-' . format_date(time(), 'custom', 'm-d') . 'T00:00:00';
+      $query = cg_daily_query();
+      $datequery = db_query("SELECT COUNT(n.nid) AS count,
+        d.field_historical_date_value AS date FROM {node} n
+        LEFT JOIN {content_field_historical_date} d USING (vid)
+        WHERE n.status AND n.type IN ('clip', 'talk', 'vignette') AND
+        d.field_historical_date_value <= '%s'
+        GROUP BY d.field_historical_date_value
+        ORDER BY d.field_historical_date_value DESC LIMIT 0,%d", $arg, variable_get('cg_daily_ticker_num', 5));
+      while($date = db_fetch_object($datequery)) {
+        $data[$date->date] = db_fetch_object(db_query($query, $date->date));
+        $data[$date->date]->count = $date->count;
+        $data[$date->date]->date = str_replace('T00:00:00', '', $data[$date->date]->date);
+      }
+      foreach ($data as $r) {
+        $display_date = format_date(strtotime($r->date), 'custom', 'F j, Y');
+        $title = check_plain(cg_fix_bahai_words($r->title));
+        $img = '';
+        $link = "/daily/$r->date";
+        $more = format_plural($r->count, '1 article', '@count articles');
+        $image_markup = '';
+        if ($r->img) {
+          $img = imagecache_create_url('teaser', $r->img);
+          $image_markup = "<a href='$link'><img width='55' height='55' src='$img' class='imagecache imagecache-teaser imagecache-default imagecache-teaser_default'></a>";
+        }
+        $text = "<div class='slide'><a href='$link'>$display_date &middot; $title &middot; <em>$more</em></div>";
+        $output = $text . $output;
+      }
+      drupal_add_js(drupal_get_path('module', 'views_slideshow') . '/js/jquery.cycle.all.min.js', 'module');
+      drupal_add_js(drupal_get_path('module', 'cg') . '/cg_fullsite.js', 'module');
+      $output = '<div id="daily-ticker">' . $output . '</div>';
+      return array(
+        'subject' => '',
+        'content' => $output
+      );
+      break;
+    case 'configure':
+      $form['cg_daily_ticker_num'] = array(
+        '#type' => 'select',
+        '#title' => t('Number of items'),
+        '#default_value' => variable_get('cg_daily_ticker_num', 5),
+        '#options' => array(3,4,5,6,7,8,9,10,12,19,30),
+      );
+      return $form;
+      break;
+    case 'save':
+      variable_set('cg_daily_ticket_num', $edit['cg_daily_ticket_num']);
+      break;
+  }
+}
+
+function cg_daily_query() {
+  return "SELECT n.title,
+    d.field_historical_date_value AS date, f.filepath AS img, f.filemime, f.filesize
+    FROM {node} n LEFT JOIN {content_field_historical_date} d USING (vid)
+    LEFT JOIN {content_field_main_image} i USING (vid)
+    LEFT JOIN {files} f ON (i.field_main_image_fid = f.fid)
+    WHERE n.status AND n.type IN ('clip', 'talk', 'vignette') AND
+    d.field_historical_date_value = '%s'
+    ORDER BY n.sticky DESC, n.type ASC, n.moderate DESC LIMIT 0,1";
+}
