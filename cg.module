@@ -579,7 +579,7 @@ function cg_block($op = 'list', $delta = 0, $edit = array()) {
         '#type' => 'select',
         '#title' => t('Number of items'),
         '#default_value' => variable_get('cg_daily_ticker_num', 5),
-        '#options' => array(3,4,5,6,7,8,9,10,12,19,30),
+        '#options' => array(3=>'3',4=>'4',5=>'5',6=>'6',7=>'7',8=>'8',9=>'9',10=>'10',12=>'12',19=>'19',30=>'30'),
       );
       return $form;
       break;
