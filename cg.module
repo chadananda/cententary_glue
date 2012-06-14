@@ -538,6 +538,8 @@ function cg_block($op = 'list', $delta = 0, $edit = array()) {
       );
       break;
     case 'view':
+      drupal_add_js(drupal_get_path('module', 'views_slideshow') . '/js/jquery.cycle.all.min.js', 'module');
+      drupal_add_js(drupal_get_path('module', 'cg') . '/cg_fullsite.js', 'module');
       if (($cache = cache_get('cg:ticker-block', 'cache')) && !empty($cache->data) && (time() < $cache->expire)) {
         return array('subject' => '','content' => $cache->data);
       }
@@ -577,8 +579,6 @@ function cg_block($op = 'list', $delta = 0, $edit = array()) {
         </div>";
         $output = $output . $text;
       }
-      drupal_add_js(drupal_get_path('module', 'views_slideshow') . '/js/jquery.cycle.all.min.js', 'module');
-      drupal_add_js(drupal_get_path('module', 'cg') . '/cg_fullsite.js', 'module');
       $output = '<div id="daily-ticker">' . $output . '</div>';
       $expire = strtotime(format_date(time(), 'custom', 'Y-m-d 06:00:00') . ' +1 day');
       cache_set('cg:ticker-block', $output, 'cache', $expire);
