@@ -504,6 +504,10 @@ function cg_views_query_alter(&$view, &$query) {
         $nextlink = l("$nexttext >>", "daily/$nextdate");
       }
       $view->display_handler->options['header'] = "<div class='header-link prev'>$prevlink</div><div class='header-link next'>$nextlink</div><h1 class='headline'>The Daily Centenarian</h1>";
+      $view->display_handler->options['header'] .= '<div class="daily-navlinks">' .
+        '<a class="daily-today" href="/daily" title="Jump to today">Jump to today</a>' .
+        '<a class="daily-archive" href="/daily-archive" title="Browse the archive">Browse the archive</a>' .
+        '<a class="daily-rss" href="/daily-archive/rss" title="RSS Feed">RSS Feed</a></div>';
       $view->display_handler->options['header_format'] = 2;
       $view->display_handler->options['header_empty'] = 1;
       drupal_add_js(drupal_get_path('module', 'cg') . '/dailyview.js');
