@@ -450,6 +450,9 @@ function cg_views_query_alter(&$view, &$query) {
   if ($view->name == 'daily') {
     $query->where['date']['clauses'][0] = "node_data_field_historical_date.field_historical_date_value = '%s'";
     $date = $query->where['date']['args'][0] = $view->args[0] . 'T00:00:00';
+    if ($view->display_handler->display->id == 'attachment_5') { // On the external links feed
+      $query->where['date']['args'][0] = preg_replace('|^19|', '20', $view->args[0]) . 'T00:00:00';
+    }
     if ($view->display_handler->display->id == 'page') { // On the daily page itself
 
       // Set Facebook meta headers
