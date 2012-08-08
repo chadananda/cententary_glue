@@ -550,7 +550,6 @@ function cg_views_post_render(&$view, &$output, &$cache) {
       }
     }
   }
-  $i = 1;
 }
 
 function cg_post_fb($page, $text = '') {
