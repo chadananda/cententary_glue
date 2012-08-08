@@ -532,23 +532,25 @@ function cg_views_query_alter(&$view, &$query) {
 }
 
 function cg_views_post_render(&$view, &$output, &$cache) {
-  if ($view->name == 'daily' && user_access('adjust centenary node properties')) {
+  if ($view->name == 'daily' && $view->current_display == 'page' && user_access('adjust centenary node properties')) {
     drupal_add_js(drupal_get_path('module', 'cg') . '/adjust_nodes.js');
     $matches = array();
     preg_match_all('/<div class="node-([0-9]+) (sticky|promote) (Yes|No)/', $output, $matches, PREG_SET_ORDER);
-    foreach ($matches as $match) {
-      $token = drupal_get_token("adjust-{$match[1]}-{$match[2]}");
-      $title = $match[2] == 'sticky' ?
-      'Title article for Daily Centenarian - flag ONE per day' :
-      'Displayed in front page slideshow - flag at least a few per week';
-      $title .= "\n\nPlease ensure that all flagged content:
-        1. has a nicely-cropped historic-looking black and white picture
-        2. has a good title
-        3. is a good article of reasonable length
-        4. has a different image and title than other recent flagged articles";
-      $output = str_replace($match[0], $match[0] . ' cg-adjust-properties" alt="' . $token . '" title="' . $title, $output);
+    if (!empty($matches)) {
+      $title['sticky'] = 'Title article for Daily Centenarian - flag just ONE per day';
+      $title['promote'] = "Displayed in front page slideshow - flag 0-3 per day, 3 or more per week";
+      $titletail = "\n=====\nPlease ensure that all flagged content:
+1. has a nicely-cropped historic-looking black and white picture
+2. has a good title
+3. is a good article of reasonable length
+4. has a different image and title than other recent flagged articles";
+      foreach (array_reverse($matches) as $match) {
+        $token = drupal_get_token("adjust-{$match[1]}-{$match[2]}");
+        $output = str_replace($match[0], $match[0] . ' cg-adjust-properties" alt="' . $token . '" title="' . $title[$match[2]] . $titletail, $output);
+      }
     }
   }
+  $i = 1;
 }
 
 function cg_post_fb($page, $text = '') {
