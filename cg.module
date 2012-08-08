@@ -20,6 +20,14 @@ function cg_menu() {
     'page arguments' => array(3,4,5),
     'file' => 'centenary_tagger.inc',
   );
+  $items['admin/centenary-adjust'] = array(
+    'title' => 'Adjust properties',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('adjust centenary node properties'),
+    'page callback' => 'cg_adjust_properties',
+    'page arguments' => array(2,3,4),
+    'file' => 'centenary_tagger.inc',
+  );
   $items['admin/settings/centenary'] = array(
     'title' => '* Centenary',
     'description' => 'Centenary site custom settings',
@@ -392,6 +400,7 @@ function cg_form_alter(array &$form, array &$form_state, $form_id) {
 function cg_perm() {
   return array(
     'tag centenary content',
+    'adjust centenary node properties',
   );
 }
 
@@ -518,6 +527,26 @@ function cg_views_query_alter(&$view, &$query) {
       $view->display_handler->options['header_format'] = 2;
       $view->display_handler->options['header_empty'] = 1;
       drupal_add_js(drupal_get_path('module', 'cg') . '/dailyview.js');
+    }
+  }
+}
+
+function cg_views_post_render(&$view, &$output, &$cache) {
+  if ($view->name == 'daily' && user_access('adjust centenary node properties')) {
+    drupal_add_js(drupal_get_path('module', 'cg') . '/adjust_nodes.js');
+    $matches = array();
+    preg_match_all('/<div class="node-([0-9]+) (sticky|promote) (Yes|No)/', $output, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      $token = drupal_get_token("adjust-{$match[1]}-{$match[2]}");
+      $title = $match[2] == 'sticky' ?
+      'Title article for Daily Centenarian - flag ONE per day' :
+      'Displayed in front page slideshow - flag at least a few per week';
+      $title .= "\n\nPlease ensure that all flagged content:
+        1. has a nicely-cropped historic-looking black and white picture
+        2. has a good title
+        3. is a good article of reasonable length
+        4. has a different image and title than other recent flagged articles";
+      $output = str_replace($match[0], $match[0] . ' cg-adjust-properties" alt="' . $token . '" title="' . $title, $output);
     }
   }
 }

@@ -15,7 +15,7 @@ Drupal.behaviors.centenaryTagger = function(context) {
       url: this.href,
       dataType: 'json',
       success: saveIt,
-      data: js=1,
+      data: js=1
     });
     return false;
   })
