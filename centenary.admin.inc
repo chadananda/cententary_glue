@@ -68,17 +68,14 @@ function cg_daily_archive($date = FALSE, $all = FALSE) {
     drupal_goto('daily-archive/1912-' . format_date(time(), 'custom', 'm'));
   }
   drupal_set_html_head("<link rel='canonical' href='http://centenary.bahai.us/daily-archive/$date' />");
-  if (!$all
-      && ($cache = cache_get('cg:daily-archive-' . $date, 'cache_page'))
+  if (($cache = cache_get('cg:daily-archive-' . $date, 'cache_page'))
       && !empty($cache->data)
       && (time() < $cache->expire))
   {
     $output = $cache->data;
   }
   else {
-    $notall = ($all && user_access('administer nodes')) ? '' : "AND d.field_historical_date_value <= '19$thisdate'";
-    if ($notall) { $all = FALSE; }
-    $rows = cg_daily_archive_data(cg_daily_archive_date($date), $all);
+    $rows = cg_daily_archive_data(cg_daily_archive_date($date));
     drupal_set_title("Daily Centenarian Archive : " . format_date(strtotime($date), 'custom', 'F Y'));
     if (!is_array($rows)) {
       $output = t("<p>There are no pages available for this month.</p>");
@@ -122,21 +119,21 @@ EOF;
     if ($lastdate = db_result(db_query("SELECT d.field_historical_date_value
       FROM {node} n LEFT JOIN {content_field_historical_date} d USING (vid) WHERE
       n.status AND n.type IN ('clip', 'talk', 'vignette') AND
-      d.field_historical_date_value < '%s' AND d.field_historical_date_value >= '1911-01-01T00:00:00' $notall
+      d.field_historical_date_value < '%s' AND d.field_historical_date_value >= '1911-01-01T00:00:00'
       ORDER BY d.field_historical_date_value DESC LIMIT 0,1", "$date-01"))) {
       $links = '<div class="daily-archive-link prev">' .
         l('<< ' . format_date(strtotime($lastdate), 'custom', 'F Y'),
-          'daily-archive/' . substr($lastdate, 0, 7) . ($notall ? '' : '/all'))
+          'daily-archive/' . substr($lastdate, 0, 7))
           . '</div>';
     }
     if ($nextdate = db_result(db_query("SELECT d.field_historical_date_value
       FROM {node} n LEFT JOIN {content_field_historical_date} d USING (vid) WHERE
       n.status AND n.type IN ('clip', 'talk', 'vignette') AND
-      d.field_historical_date_value >= '%s' AND d.field_historical_date_value <= '1913-12-31T00:00:00' $notall
+      d.field_historical_date_value >= '%s' AND d.field_historical_date_value <= '1913-12-31T00:00:00' 
       ORDER BY d.field_historical_date_value ASC LIMIT 0,1", format_date(strtotime("$date +1 month"), 'custom', 'Y-m')))) {
       $links .= '<div class="daily-archive-link next">' .
         l(format_date(strtotime($nextdate), 'custom', 'F Y') . ' >>',
-          'daily-archive/' . substr($nextdate, 0, 7) . ($notall ? '' : '/all'))
+          'daily-archive/' . substr($nextdate, 0, 7))
           . '</div>';
     }
     $links = "<div class='daily-archive-nav-links'>$links</div>";
@@ -144,12 +141,7 @@ EOF;
     $current_month = format_date(time(), 'custom', 'y-m');
     for ($t = 1; $t <= 12; $t++) {
       $m = str_pad($t, 2, '0', STR_PAD_LEFT);
-      if (!$notall || ("12-$m" <= $current_month)) {
-        $nav .= l(format_date(strtotime("1912-$m"), 'custom', 'M'), "daily-archive/1912-$m" . ($notall ? '' : '/all'));
-      }
-      else {
-        break;
-      }
+      $nav .= l(format_date(strtotime("1912-$m"), 'custom', 'M'), "daily-archive/1912-$m");
     }
     $nav .= '</div>';
     $output = $links . $nav . $output;
@@ -251,7 +243,7 @@ function cg_daily_archive_date($date = FALSE) {
   return $date;
 }
 
-function cg_daily_archive_data($month, $all = FALSE) {
+function cg_daily_archive_data($month, $all = TRUE) {
 
   if (!preg_match('|^191[1-3]|', $month)) {
     return FALSE;
@@ -264,10 +256,11 @@ function cg_daily_archive_data($month, $all = FALSE) {
   $where = ("n.status AND n.type IN ('clip', 'talk', 'vignette') AND
     d.field_historical_date_value BETWEEN '%s' AND '%s'");
   $args = array("$month-01", "$month-31");
-  if (!$all) {
-    $where .= " AND d.field_historical_date_value <= '%s'";
-    $args[] = '1912-' . format_date(time(), 'custom', 'm-d') . 'T00:00:00';
-  }
+  // The code below was needed when we hid dates la
+//  if (!$all) {
+//    $where .= " AND d.field_historical_date_value <= '%s'";
+//    $args[] = '1912-' . format_date(time(), 'custom', 'm-d') . 'T00:00:00';
+//  }
   $datequery = db_query("SELECT COUNT(n.nid) AS count,
     d.field_historical_date_value AS date FROM {node} n
     LEFT JOIN {content_field_historical_date} d USING (vid)
